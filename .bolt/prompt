@@ -1,0 +1,24 @@
+Javier_shark006 Shop - E-commerce Platform for Digital Products
+
+A modern, full-featured e-commerce platform built with Next.js 13, Supabase, and Tailwind CSS.
+
+Features:
+- Product management with image upload (up to 4 images)
+- Category management
+- Search and filtering
+- Product variations
+- WhatsApp order integration
+- Admin dashboard
+- Mobile-responsive design
+- Feature guides for users
+- Secure authentication
+
+Tech Stack:
+- Framework: Next.js 13.5.1
+- Database: Supabase PostgreSQL
+- Storage: Supabase Storage
+- Auth: Supabase Auth
+- UI: Shadcn/ui + Tailwind CSS
+- Icons: Lucide React
+- Forms: React Hook Form + Zod
+- Fonts: System fonts (native)

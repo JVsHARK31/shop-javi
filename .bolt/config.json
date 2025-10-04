@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "projectName": "Javier_shark006 Shop",
+  "framework": "nextjs",
+  "database": "supabase"
+}
