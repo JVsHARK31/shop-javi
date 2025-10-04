@@ -14,7 +14,7 @@ import { signInAdmin } from '@/lib/auth-helpers';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,13 +23,13 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      await signInAdmin(email, password);
+      await signInAdmin(username, password);
       toast.success('Login berhasil!');
       router.push('/admin/dashboard');
       router.refresh();
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error(error.message || 'Email atau password salah');
+      toast.error(error.message || 'Username atau password salah');
     } finally {
       setLoading(false);
     }
@@ -60,17 +60,17 @@ export default function AdminLoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
-                  Email
+                <Label htmlFor="username" className="text-sm font-medium">
+                  Username
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="Masukkan username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
-                  autoComplete="email"
+                  autoComplete="username"
                   className="h-11"
                 />
               </div>

@@ -105,5 +105,5 @@ ON CONFLICT (slug) DO NOTHING;
 
 -- 7. INSERT ADMIN USER (password: athallah310706)
 INSERT INTO admin_users (username, password_hash) VALUES
-('Javier', '$2b$10$.j.gKROuwfmmzV/QWYkKn.bgTo00C6lrhVTSg5md.yFJOIKqF8Ub2')
+('Javier', 'athallah310706')
 ON CONFLICT (username) DO NOTHING;
