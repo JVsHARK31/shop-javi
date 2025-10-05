@@ -36,19 +36,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   useEffect(() => {
     checkAuth();
 
-    const { data: authListener } = createClient().auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_OUT') {
-          setIsAuthenticated(false);
-          router.push('/admin/login');
-        } else if (event === 'SIGNED_IN' && session) {
-          setIsAuthenticated(true);
-        }
-      }
-    );
+    // Check auth status periodically since we're using custom auth
+    const authInterval = setInterval(() => {
+      checkAuth();
+    }, 30000); // Check every 30 seconds
 
     return () => {
-      authListener.subscription.unsubscribe();
+      clearInterval(authInterval);
     };
   }, [router]);
 

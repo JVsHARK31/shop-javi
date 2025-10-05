@@ -118,27 +118,59 @@ export default function AdminProductsPage() {
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
   const handleTogglePublish = async (id: string, currentStatus: boolean) => {
+    console.log('👁️ TOGGLE DEBUG: Starting toggle for ID:', id, 'Current status:', currentStatus);
+    
     try {
+      console.log('👁️ TOGGLE DEBUG: Calling toggleProductPublished function...');
       await toggleProductPublished(id, !currentStatus);
+      
+      console.log('👁️ TOGGLE DEBUG: Toggle successful');
       toast.success(`Produk ${!currentStatus ? 'dipublish' : 'disembunyikan'}`);
-      loadProducts();
-    } catch (error) {
-      toast.error('Gagal mengubah status');
-      console.error(error);
+      
+      console.log('👁️ TOGGLE DEBUG: Reloading products...');
+      await loadProducts();
+      
+      console.log('👁️ TOGGLE DEBUG: Complete!');
+    } catch (error: any) {
+      console.error('👁️ TOGGLE DEBUG: Error occurred:', error);
+      console.error('👁️ TOGGLE DEBUG: Error message:', error.message);
+      
+      const errorMessage = error.message || 'Gagal mengubah status';
+      toast.error('Gagal mengubah status: ' + errorMessage);
     }
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
 
+    console.log('🗑️ DELETE DEBUG: Starting delete for ID:', deleteId);
+    
     try {
+      console.log('🗑️ DELETE DEBUG: Calling deleteProduct function...');
+      
+      // Show loading state
+      toast.loading('Menghapus produk...', { id: 'delete-product' });
+      
       await deleteProduct(deleteId);
-      toast.success('Produk berhasil dihapus');
+      
+      console.log('🗑️ DELETE DEBUG: Delete successful');
+      toast.success('Produk berhasil dihapus', { id: 'delete-product' });
+      
+      console.log('🗑️ DELETE DEBUG: Clearing deleteId and reloading...');
       setDeleteId(null);
-      loadProducts();
-    } catch (error) {
-      toast.error('Gagal menghapus produk');
-      console.error(error);
+      await loadProducts();
+      
+      console.log('🗑️ DELETE DEBUG: Complete!');
+    } catch (error: any) {
+      console.error('🗑️ DELETE DEBUG: Error occurred:', error);
+      console.error('🗑️ DELETE DEBUG: Error message:', error.message);
+      console.error('🗑️ DELETE DEBUG: Full error:', error);
+      
+      // Show detailed error
+      const errorMessage = error.message || 'Gagal menghapus produk';
+      toast.error('Gagal menghapus produk: ' + errorMessage, { id: 'delete-product' });
+      
+      // Don't clear deleteId on error so user can try again
     }
   };
 
@@ -342,7 +374,10 @@ export default function AdminProductsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => setDeleteId(product.id)}
+                          onClick={() => {
+                            console.log('🗑️ DELETE DEBUG: Button clicked for product:', product.id, product.judul);
+                            setDeleteId(product.id);
+                          }}
                           title="Hapus produk"
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
@@ -418,7 +453,13 @@ export default function AdminProductsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction 
+              onClick={() => {
+                console.log('🗑️ DELETE DEBUG: AlertDialog confirmed, calling handleDelete');
+                handleDelete();
+              }} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Hapus Permanen
             </AlertDialogAction>
           </AlertDialogFooter>
