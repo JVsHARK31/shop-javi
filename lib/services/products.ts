@@ -199,3 +199,38 @@ export async function getAllTags(): Promise<string[]> {
 
   return Array.from(allTags).sort();
 }
+
+export async function getHiddenProducts(filters?: ProductFilters): Promise<Product[]> {
+  let query = supabase
+    .from('products')
+    .select(`
+      *,
+      variations:product_variations(*)
+    `)
+    .eq('published', false); // Only hidden products
+
+  if (filters?.kategori && filters.kategori.length > 0) {
+    query = query.overlaps('kategori', filters.kategori);
+  }
+
+  if (filters?.tag && filters.tag.length > 0) {
+    query = query.overlaps('tag', filters.tag);
+  }
+
+  if (filters?.search) {
+    query = query.ilike('judul', `%${filters.search}%`);
+  }
+
+  if (filters?.sortBy === 'harga_terendah') {
+    query = query.order('base_price', { ascending: true });
+  } else if (filters?.sortBy === 'harga_tertinggi') {
+    query = query.order('base_price', { ascending: false });
+  } else {
+    query = query.order('created_at', { ascending: false });
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+  return (data || []) as Product[];
+}

@@ -13,6 +13,7 @@ import {
   FolderOpen,
   Settings,
   LogOut,
+  EyeOff,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,6 +24,7 @@ interface AdminLayoutProps {
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Produk', href: '/admin/products', icon: Package },
+  { name: 'Produk Disembunyikan', href: '/admin/hidden-products', icon: EyeOff },
   { name: 'Kategori', href: '/admin/categories', icon: FolderOpen },
   { name: 'Pengaturan', href: '/admin/settings', icon: Settings },
 ];
