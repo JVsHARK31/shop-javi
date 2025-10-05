@@ -3,9 +3,19 @@ import { supabase } from '../supabase/client';
 const BUCKET_NAME = 'product-images';
 
 export async function uploadProductImage(file: File): Promise<string> {
+  console.log('📤 STORAGE DEBUG: Starting upload for file:', file.name);
+  
+  // Validate file first
+  const validation = validateImageFile(file);
+  if (!validation.valid) {
+    throw new Error(validation.error);
+  }
+  
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
   const filePath = `products/${fileName}`;
+
+  console.log('📤 STORAGE DEBUG: Uploading to path:', filePath);
 
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)
@@ -15,12 +25,29 @@ export async function uploadProductImage(file: File): Promise<string> {
     });
 
   if (error) {
-    throw new Error(`Upload failed: ${error.message}`);
+    console.error('📤 STORAGE DEBUG: Upload error:', error);
+    
+    // Enhanced error messages
+    if (error.message.includes('Bucket not found')) {
+      throw new Error('Storage bucket belum dikonfigurasi. Silakan jalankan SQL setup di Supabase.');
+    } else if (error.message.includes('insufficient_privilege')) {
+      throw new Error('Tidak ada izin untuk upload. Pastikan policies sudah dikonfigurasi.');
+    } else if (error.message.includes('File too large')) {
+      throw new Error('File terlalu besar. Maksimal 5MB per file.');
+    } else if (error.message.includes('Invalid file type')) {
+      throw new Error('Format file tidak didukung. Gunakan JPEG, PNG, WebP, atau GIF.');
+    } else {
+      throw new Error(`Upload gagal: ${error.message}`);
+    }
   }
+
+  console.log('📤 STORAGE DEBUG: Upload successful');
 
   const { data: { publicUrl } } = supabase.storage
     .from(BUCKET_NAME)
     .getPublicUrl(filePath);
+
+  console.log('📤 STORAGE DEBUG: Public URL generated:', publicUrl);
 
   return publicUrl;
 }
@@ -65,4 +92,33 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
   }
 
   return { valid: true };
+}
+
+export async function checkStorageBucket(): Promise<{ exists: boolean; error?: string }> {
+  try {
+    console.log('📦 STORAGE DEBUG: Checking if bucket exists...');
+    
+    const { data: buckets, error } = await supabase.storage.listBuckets();
+    
+    if (error) {
+      console.error('📦 STORAGE DEBUG: Error listing buckets:', error);
+      return { exists: false, error: `Gagal mengecek bucket: ${error.message}` };
+    }
+    
+    const bucketExists = buckets.some(bucket => bucket.id === BUCKET_NAME);
+    
+    console.log('📦 STORAGE DEBUG: Bucket exists:', bucketExists);
+    
+    if (!bucketExists) {
+      return { 
+        exists: false, 
+        error: 'Storage bucket belum dikonfigurasi. Jalankan SQL setup di Supabase.' 
+      };
+    }
+    
+    return { exists: true };
+  } catch (error: any) {
+    console.error('📦 STORAGE DEBUG: Unexpected error:', error);
+    return { exists: false, error: error.message };
+  }
 }

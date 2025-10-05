@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { getCategories } from '@/lib/services/categories';
-import { uploadProductImage, validateImageFile, deleteProductImage } from '@/lib/services/storage';
+import { uploadProductImage, validateImageFile, deleteProductImage, checkStorageBucket } from '@/lib/services/storage';
 import { X, Plus, Upload, Loader as Loader2, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -194,6 +194,18 @@ export function ProductForm({ open, onOpenChange, initialData, onSubmit, mode }:
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    console.log('📤 UPLOAD DEBUG: Starting file upload process...');
+
+    // Check bucket first
+    const bucketCheck = await checkStorageBucket();
+    if (!bucketCheck.exists) {
+      toast.error(bucketCheck.error || 'Storage bucket tidak tersedia');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
     const remainingSlots = 4 - formData.gambar.length;
     if (remainingSlots <= 0) {
       toast.error('Maksimal 4 gambar per produk');
@@ -214,6 +226,8 @@ export function ProductForm({ open, onOpenChange, initialData, onSubmit, mode }:
 
       for (let i = 0; i < filesToUpload.length; i++) {
         const file = filesToUpload[i];
+        console.log(`📤 UPLOAD DEBUG: Processing file ${i + 1}/${filesToUpload.length}:`, file.name);
+        
         const validation = validateImageFile(file);
 
         if (!validation.valid) {
@@ -231,8 +245,10 @@ export function ProductForm({ open, onOpenChange, initialData, onSubmit, mode }:
           ...prev,
           gambar: [...prev.gambar, ...uploadedUrls],
         }));
+        console.log('📤 UPLOAD DEBUG: Upload completed successfully');
       }
     } catch (error: any) {
+      console.error('📤 UPLOAD DEBUG: Upload error:', error);
       toast.error(error.message || 'Gagal upload gambar');
     } finally {
       setUploadingImage(false);
