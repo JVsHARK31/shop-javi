@@ -108,12 +108,14 @@ export async function createProduct(product: Partial<Product>): Promise<Product>
   if (variations && variations.length > 0) {
     const variationsToInsert = variations.map((v, index) => ({
       product_id: newProduct.id,
-      nama_variasi: v.name,
-      price: v.price,
-      price_override: v.price_override,
-      sku: v.sku,
-      stok: v.stock,
-      is_default: v.is_default,
+      nama_variasi: v.name || 'Default Variation',
+      name: v.name || 'Default Variation',
+      price: v.price ?? null,
+      price_override: v.price_override ?? null,
+      sku: v.sku || null,
+      stok: v.stock ?? 0,
+      stock: v.stock ?? 0,
+      is_default: v.is_default ?? (index === 0),
       sort_order: v.sort_order ?? index,
     }));
 
@@ -151,12 +153,14 @@ export async function updateProduct(id: string, product: Partial<Product>): Prom
     if (variations.length > 0) {
       const variationsToInsert = variations.map((v, index) => ({
         product_id: id,
-        nama_variasi: v.name,
-        price: v.price,
-        price_override: v.price_override,
-        sku: v.sku,
-        stok: v.stock,
-        is_default: v.is_default,
+        nama_variasi: v.name || 'Default Variation',
+        name: v.name || 'Default Variation',
+        price: v.price ?? null,
+        price_override: v.price_override ?? null,
+        sku: v.sku || null,
+        stok: v.stock ?? 0,
+        stock: v.stock ?? 0,
+        is_default: v.is_default ?? (index === 0),
         sort_order: v.sort_order ?? index,
       }));
 
