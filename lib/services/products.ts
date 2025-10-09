@@ -106,18 +106,24 @@ export async function createProduct(product: Partial<Product>): Promise<Product>
   if (productError) throw productError;
 
   if (variations && variations.length > 0) {
-    const variationsToInsert = variations.map((v, index) => ({
-      product_id: newProduct.id,
-      nama_variasi: v.name || 'Default Variation',
-      name: v.name || 'Default Variation',
-      price: v.price ?? null,
-      price_override: v.price_override ?? null,
-      sku: v.sku || null,
-      stok: v.stock ?? 0,
-      stock: v.stock ?? 0,
-      is_default: v.is_default ?? (index === 0),
-      sort_order: v.sort_order ?? index,
-    }));
+    const variationsToInsert = variations.map((v, index) => {
+      // Handle both old (stok) and new (stock) field names
+      const stockValue = (v as any).stok ?? v.stock ?? 0;
+      const nameValue = (v as any).nama_variasi || v.name || 'Default Variation';
+      
+      return {
+        product_id: newProduct.id,
+        nama_variasi: nameValue,
+        name: nameValue,
+        price: v.price ?? null,
+        price_override: v.price_override ?? null,
+        sku: v.sku || null,
+        stok: stockValue,
+        stock: stockValue,
+        is_default: v.is_default ?? (index === 0),
+        sort_order: v.sort_order ?? index,
+      };
+    });
 
     const { error: variationsError } = await supabase
       .from('product_variations')
@@ -151,18 +157,24 @@ export async function updateProduct(id: string, product: Partial<Product>): Prom
     if (deleteError) throw deleteError;
 
     if (variations.length > 0) {
-      const variationsToInsert = variations.map((v, index) => ({
-        product_id: id,
-        nama_variasi: v.name || 'Default Variation',
-        name: v.name || 'Default Variation',
-        price: v.price ?? null,
-        price_override: v.price_override ?? null,
-        sku: v.sku || null,
-        stok: v.stock ?? 0,
-        stock: v.stock ?? 0,
-        is_default: v.is_default ?? (index === 0),
-        sort_order: v.sort_order ?? index,
-      }));
+      const variationsToInsert = variations.map((v, index) => {
+        // Handle both old (stok) and new (stock) field names
+        const stockValue = (v as any).stok ?? v.stock ?? 0;
+        const nameValue = (v as any).nama_variasi || v.name || 'Default Variation';
+        
+        return {
+          product_id: id,
+          nama_variasi: nameValue,
+          name: nameValue,
+          price: v.price ?? null,
+          price_override: v.price_override ?? null,
+          sku: v.sku || null,
+          stok: stockValue,
+          stock: stockValue,
+          is_default: v.is_default ?? (index === 0),
+          sort_order: v.sort_order ?? index,
+        };
+      });
 
       const { error: variationsError } = await supabase
         .from('product_variations')
