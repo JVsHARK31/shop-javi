@@ -31,15 +31,15 @@ export function Header({ categories, onSearch }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="container mx-auto flex h-14 max-w-screen-2xl items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6">
-        <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+      <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-3 px-3 sm:h-16 sm:gap-4 sm:px-6">
+        <div className="flex items-center gap-3 sm:gap-6">
+          <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80 active:opacity-60">
             <Image
               src="/Logo JV.jpg"
               alt="Javier_shark006 Shop Logo"
-              width={36}
-              height={36}
-              className="rounded-md sm:h-10 sm:w-10"
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-md"
             />
             <span className="hidden text-sm font-bold sm:inline-block sm:text-base lg:text-lg">
               Javier_shark006 Shop
@@ -76,20 +76,20 @@ export function Header({ categories, onSearch }: HeaderProps) {
             <Input
               type="search"
               placeholder="Cari produk..."
-              className="pl-10 h-9"
+              className="pl-10 h-10"
               value={searchQuery}
               onChange={handleSearchChange}
             />
           </div>
 
-          <Button asChild variant="outline" size="sm" className="hidden sm:flex">
+          <Button asChild variant="outline" size="sm" className="hidden sm:flex h-10">
             <Link href="/admin/login">Admin</Link>
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden h-9 w-9"
+            className="md:hidden h-10 w-10 flex-shrink-0"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -99,23 +99,23 @@ export function Header({ categories, onSearch }: HeaderProps) {
       </div>
 
       {isMenuOpen && (
-        <div className="border-t md:hidden">
-          <div className="container space-y-3 p-4">
+        <div className="border-t md:hidden animate-in slide-in-from-top-2 duration-200">
+          <div className="container space-y-4 p-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Cari produk..."
-                className="pl-10"
+                className="pl-10 h-11"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
             </div>
 
-            <nav className="flex flex-col space-y-2">
+            <nav className="flex flex-col space-y-1">
               <Link
                 href="/"
-                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
+                className="rounded-md px-4 py-3 text-sm font-medium hover:bg-accent active:bg-accent/80 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Semua Produk
@@ -124,7 +124,7 @@ export function Header({ categories, onSearch }: HeaderProps) {
                 <Link
                   key={category.id}
                   href={`/?kategori=${encodeURIComponent(category.name)}`}
-                  className="rounded-md px-3 py-2 text-sm hover:bg-accent"
+                  className="rounded-md px-4 py-3 text-sm hover:bg-accent active:bg-accent/80 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {category.name}
@@ -132,7 +132,7 @@ export function Header({ categories, onSearch }: HeaderProps) {
               ))}
               <Link
                 href="/admin/login"
-                className="rounded-md border border-input px-3 py-2 text-sm font-medium hover:bg-accent"
+                className="rounded-md border border-input px-4 py-3 text-sm font-medium hover:bg-accent active:bg-accent/80 transition-colors mt-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Admin Login

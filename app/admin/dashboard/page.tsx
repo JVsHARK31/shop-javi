@@ -21,7 +21,7 @@ export default function AdminDashboardPage() {
         const allProducts = await getProducts({ published: undefined });
 
         const published = allProducts.filter(p => p.published).length;
-        const lowStock = allProducts.filter(p => p.stok_total > 0 && p.stok_total <= 5).length;
+        const lowStock = allProducts.filter(p => (p.stok_total ?? 0) > 0 && (p.stok_total ?? 0) <= 5).length;
 
         setStats({
           totalProducts: allProducts.length,

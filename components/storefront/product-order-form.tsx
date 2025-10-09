@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Product, ProductVariation, WhatsAppOrderData } from '@/lib/types';
-import { formatRupiahShort, formatWhatsAppMessage, generateWhatsAppUrl, copyToClipboard } from '@/lib/format';
+import { formatRupiahShort, copyToClipboard } from '@/lib/format';
+import { createWhatsAppOrder, openWhatsAppOrder } from '@/lib/services/whatsapp';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -20,8 +21,6 @@ interface ProductOrderFormProps {
   product: Product;
 }
 
-const WHATSAPP_NUMBER = '6288290286954';
-
 export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const variations = product.variations || [];
   const defaultVariation = variations.find(v => v.is_default) || variations[0];
@@ -33,9 +32,9 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const [copied, setCopied] = useState(false);
 
   const selectedVariation = variations.find(v => v.id === selectedVariationId);
-  const isOutOfStock = !selectedVariation || selectedVariation.stok === 0;
-  const totalPrice = selectedVariation ? selectedVariation.price * quantity : 0;
-  const maxQuantity = selectedVariation ? selectedVariation.stok : 0;
+  const isOutOfStock = !selectedVariation || selectedVariation.stock === 0;
+  const totalPrice = selectedVariation ? (selectedVariation.price ?? 0) * quantity : 0;
+  const maxQuantity = selectedVariation ? selectedVariation.stock : 0;
 
   const handleQuantityChange = (delta: number) => {
     const newQuantity = quantity + delta;
@@ -55,18 +54,23 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     const orderData: WhatsAppOrderData = {
-      namaProduk: product.judul,
-      namaVariasi: selectedVariation.nama_variasi,
+      namaProduk: product.judul || product.title || '',
+      namaVariasi: selectedVariation.name || '',
       qty: quantity,
       totalHarga: totalPrice,
       urlProduk: currentUrl,
+      productId: product.id,
+      variationId: selectedVariation.id,
     };
 
-    const message = formatWhatsAppMessage(orderData);
-    const whatsappUrl = generateWhatsAppUrl(WHATSAPP_NUMBER, message);
-
     try {
-      await copyToClipboard(message);
+      // Create WhatsApp order URL dan log ke database
+      const whatsappUrl = await createWhatsAppOrder(orderData);
+      
+      // Copy message to clipboard (format untuk display)
+      const messageForCopy = `Halo, saya ingin memesan:\n\n- Produk: ${orderData.namaProduk}\n- Variasi: ${orderData.namaVariasi}\n- Jumlah: ${orderData.qty}\n- Perkiraan total: ${formatRupiahShort(orderData.totalHarga)}\n\n${orderData.urlProduk}`;
+      
+      await copyToClipboard(messageForCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
 
@@ -74,10 +78,11 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
         description: 'WhatsApp akan terbuka di tab baru',
       });
 
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      // Open WhatsApp
+      openWhatsAppOrder(whatsappUrl);
     } catch (error) {
-      console.error('Error:', error);
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      console.error('Error creating WhatsApp order:', error);
+      toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
   };
 
@@ -106,10 +111,10 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             <SelectContent>
               {variations.map((variation) => (
                 <SelectItem key={variation.id} value={variation.id || ''} className="text-sm">
-                  <span className="block sm:inline">{variation.nama_variasi}</span>
-                  <span className="block sm:inline sm:ml-1">- {formatRupiahShort(variation.price)}</span>
-                  {variation.stok === 0 && <span className="block sm:inline text-destructive"> (Stok Habis)</span>}
-                  {variation.stok > 0 && variation.stok <= 5 && <span className="block sm:inline text-orange-600"> (Sisa {variation.stok})</span>}
+                  <span className="block sm:inline">{variation.name}</span>
+                  <span className="block sm:inline sm:ml-1">- {formatRupiahShort(variation.price ?? 0)}</span>
+                  {variation.stock === 0 && <span className="block sm:inline text-destructive"> (Stok Habis)</span>}
+                  {variation.stock > 0 && variation.stock <= 5 && <span className="block sm:inline text-orange-600"> (Sisa {variation.stock})</span>}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -122,13 +127,13 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground">Harga</p>
                 <p className="text-xl sm:text-2xl font-bold">
-                  {formatRupiahShort(selectedVariation.price)}
+                  {formatRupiahShort(selectedVariation.price ?? 0)}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-xs sm:text-sm text-muted-foreground">Stok Tersedia</p>
                 <p className={`text-sm sm:text-base font-semibold ${isOutOfStock ? 'text-destructive' : 'text-green-600'}`}>
-                  {isOutOfStock ? 'Habis' : `${selectedVariation.stok} unit`}
+                  {isOutOfStock ? 'Habis' : `${selectedVariation.stock} unit`}
                 </p>
               </div>
             </div>

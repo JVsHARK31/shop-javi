@@ -23,15 +23,7 @@ export function generateSlug(text: string): string {
 }
 
 export function formatWhatsAppMessage(data: WhatsAppOrderData): string {
-  const message = `Halo, saya ingin memesan:
-
-- Produk: ${data.namaProduk}
-- Variasi: ${data.namaVariasi}
-- Jumlah: ${data.qty}
-- Perkiraan total: ${formatRupiahShort(data.totalHarga)}
-- Link produk: ${data.urlProduk}
-
-Mohon info detail pembayaran & pengiriman digital. Terima kasih.`;
+  const message = `Halo, saya ingin memesan:%0A%0A- Produk: ${data.namaProduk}%0A- Variasi: ${data.namaVariasi}%0A- Jumlah: ${data.qty}%0A- Perkiraan total: ${formatRupiahShort(data.totalHarga)}%0A%0A${data.urlProduk}`;
 
   return message;
 }
@@ -76,9 +68,11 @@ export function getPriceDisplay(variations: { price: number }[]): string {
   const minPrice = getMinPrice(variations);
   const maxPrice = getMaxPrice(variations);
 
+  // Jika harga sama semua variasi, tampilkan satu harga
   if (minPrice === maxPrice) {
     return formatRupiahShort(minPrice);
   }
 
-  return formatRupiahShort(minPrice);
+  // Jika harga berbeda, tampilkan rentang harga (TANPA kata "Mulai")
+  return `Rentang harga: ${formatRupiahShort(minPrice)} – ${formatRupiahShort(maxPrice)}`;
 }

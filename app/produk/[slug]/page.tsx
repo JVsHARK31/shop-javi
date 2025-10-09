@@ -94,42 +94,41 @@ export default function ProductDetailPage() {
       <Header categories={categories} />
 
       <main className="flex-1">
-        <div className="container px-4 py-4 sm:py-6 md:py-8">
+        <div className="container px-3 py-3 sm:px-4 sm:py-4 md:py-6">
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => router.back()}
-            className="mb-4 -ml-2 hover:bg-accent"
+            className="mb-3 -ml-1 sm:mb-4 sm:-ml-2 hover:bg-accent active:bg-accent/80 h-10"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
 
-          <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-2">
-            <ProductImageGallery images={product.gambar} alt={product.judul} />
+          <div className="grid gap-4 sm:gap-5 md:gap-6 lg:grid-cols-2 lg:gap-8">
+            <ProductImageGallery images={product.gambar || []} alt={product.judul || product.slug} />
 
             <div className="space-y-4 sm:space-y-5 md:space-y-6">
               <div>
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  {product.kategori.map((kat) => (
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2.5 sm:mb-3">
+                  {(product.kategori || []).map((kat) => (
                     <Badge key={kat} variant="secondary" className="text-xs">
                       {kat}
                     </Badge>
                   ))}
                 </div>
-                <h1 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+                <h1 className="text-lg font-bold tracking-tight leading-tight sm:text-xl sm:leading-tight md:text-2xl lg:text-3xl">
                   {product.judul}
                 </h1>
               </div>
 
               {product.highlight_bullets && product.highlight_bullets.length > 0 && (
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-2.5 sm:space-y-3">
                   <h3 className="text-sm font-semibold sm:text-base">Fitur Unggulan:</h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2.5 sm:space-y-3">
                     {product.highlight_bullets.map((bullet, index) => (
-                      <li key={index} className="flex items-start gap-2">
+                      <li key={index} className="flex items-start gap-2 sm:gap-2.5">
                         <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-green-600 mt-0.5" />
-                        <span className="text-xs sm:text-sm leading-relaxed">{bullet}</span>
+                        <span className="text-sm sm:text-base leading-relaxed">{bullet}</span>
                       </li>
                     ))}
                   </ul>
@@ -137,15 +136,15 @@ export default function ProductDetailPage() {
               )}
 
               <div
-                className="prose prose-sm max-w-none text-sm sm:text-base"
-                dangerouslySetInnerHTML={{ __html: product.deskripsi }}
+                className="prose prose-sm max-w-none text-sm sm:text-base leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: product.deskripsi || '' }}
               />
 
               <ProductOrderForm product={product} />
 
               {product.tag && product.tag.length > 0 && (
                 <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-2">Tag:</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-2.5">Tag:</p>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {product.tag.map((tag) => (
                       <Badge key={tag} variant="outline" className="text-xs">

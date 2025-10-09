@@ -96,13 +96,13 @@ export default function AdminProductsPage() {
 
     if (searchQuery) {
       filtered = filtered.filter(p =>
-        p.judul.toLowerCase().includes(searchQuery.toLowerCase())
+        (p.judul ?? '').toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(p =>
-        p.kategori.includes(categoryFilter)
+        (p.kategori ?? []).includes(categoryFilter)
       );
     }
 
@@ -176,7 +176,7 @@ export default function AdminProductsPage() {
 
   const handleCreateProduct = async (data: ProductFormData) => {
     try {
-      await createProduct(data);
+      await createProduct(data as any);
       toast.success('Produk berhasil ditambahkan');
       loadProducts();
       loadCategories();
@@ -189,7 +189,7 @@ export default function AdminProductsPage() {
     if (!editingProduct) return;
 
     try {
-      await updateProduct(editingProduct.id, data);
+      await updateProduct(editingProduct.id, data as any);
       toast.success('Produk berhasil diupdate');
       setEditingProduct(null);
       loadProducts();
@@ -315,10 +315,10 @@ export default function AdminProductsPage() {
                 paginatedProducts.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      {product.gambar[0] ? (
+                      {product.gambar?.[0] ? (
                         <img
                           src={product.gambar[0]}
-                          alt={product.judul}
+                          alt={product.judul ?? product.slug}
                           width={60}
                           height={60}
                           className="rounded object-cover"
@@ -330,19 +330,19 @@ export default function AdminProductsPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{product.judul}</div>
+                      <div className="font-medium">{product.judul ?? product.slug}</div>
                       <div className="text-xs text-muted-foreground">{product.slug}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {product.kategori.slice(0, 2).map((kat) => (
+                        {(product.kategori ?? []).slice(0, 2).map((kat) => (
                           <Badge key={kat} variant="secondary" className="text-xs">
                             {kat}
                           </Badge>
                         ))}
-                        {product.kategori.length > 2 && (
+                        {(product.kategori ?? []).length > 2 && (
                           <Badge variant="secondary" className="text-xs">
-                            +{product.kategori.length - 2}
+                            +{(product.kategori ?? []).length - 2}
                           </Badge>
                         )}
                       </div>
@@ -429,16 +429,16 @@ export default function AdminProductsPage() {
         initialData={editingProduct ? {
           id: editingProduct.id,
           slug: editingProduct.slug,
-          judul: editingProduct.judul,
-          deskripsi: editingProduct.deskripsi,
-          kategori: editingProduct.kategori,
-          tag: editingProduct.tag,
-          gambar: editingProduct.gambar,
+          judul: editingProduct.judul ?? '',
+          deskripsi: editingProduct.deskripsi ?? '',
+          kategori: editingProduct.kategori ?? [],
+          tag: editingProduct.tag ?? [],
+          gambar: editingProduct.gambar ?? [],
           published: editingProduct.published,
           base_price: editingProduct.base_price,
-          highlight_bullets: editingProduct.highlight_bullets,
+          highlight_bullets: editingProduct.highlight_bullets ?? [],
           variations: editingProduct.variations || [],
-        } : undefined}
+        } as any : undefined}
         onSubmit={editingProduct ? handleUpdateProduct : handleCreateProduct}
         mode={editingProduct ? 'edit' : 'create'}
       />

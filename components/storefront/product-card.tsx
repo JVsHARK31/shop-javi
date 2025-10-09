@@ -10,12 +10,12 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stok_total === 0;
-  const priceDisplay = getPriceDisplay(product.variations || []);
-  const mainImage = product.gambar[0] || '/placeholder.png';
+  const priceDisplay = getPriceDisplay((product.variations || []).filter(v => v.price !== undefined) as { price: number }[]);
+  const mainImage = product.gambar?.[0] || '/placeholder.png';
 
   return (
-    <Link href={`/produk/${product.slug}`} className="block h-full active:scale-[0.98] transition-transform">
-      <Card className="group flex h-full flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/50">
+    <Link href={`/produk/${product.slug}`} className="block h-full active:scale-[0.97] transition-all duration-200">
+      <Card className="group flex h-full flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/50 active:shadow-lg">
         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-muted to-muted/50">
           <img
             src={mainImage}
@@ -25,28 +25,28 @@ export function ProductCard({ product }: ProductCardProps) {
               const target = e.target as HTMLImageElement;
               target.src = 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400';
             }}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 group-active:scale-100"
           />
           {isOutOfStock && (
             <Badge
               variant="destructive"
-              className="absolute right-2 top-2 sm:right-3 sm:top-3 text-xs sm:text-sm font-semibold shadow-lg"
+              className="absolute right-2.5 top-2.5 sm:right-3 sm:top-3 text-xs font-semibold shadow-lg"
             >
               Stok Habis
             </Badge>
           )}
         </div>
-        <CardContent className="flex flex-1 flex-col p-3 sm:p-4 md:p-5">
-          <h3 className="line-clamp-2 text-sm font-bold leading-snug transition-colors group-hover:text-primary sm:text-base md:text-lg">
+        <CardContent className="flex flex-1 flex-col p-3.5 sm:p-4 md:p-5">
+          <h3 className="line-clamp-2 text-sm font-bold leading-tight transition-colors group-hover:text-primary sm:text-base sm:leading-snug md:text-lg">
             {product.judul}
           </h3>
           {product.kategori && product.kategori.length > 0 && (
-            <p className="mt-1.5 sm:mt-2 text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <p className="mt-2 text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
               {product.kategori[0]}
             </p>
           )}
         </CardContent>
-        <CardFooter className="border-t bg-muted/30 p-3 sm:p-4 md:p-5">
+        <CardFooter className="border-t bg-muted/30 p-3.5 sm:p-4 md:p-5">
           <div className="flex items-baseline gap-1">
             <p className="text-base font-bold text-primary sm:text-lg md:text-xl">{priceDisplay}</p>
           </div>

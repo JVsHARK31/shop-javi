@@ -1,41 +1,25 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+// HARDCODED ADMIN CREDENTIALS (as per requirements)
+const ADMIN_USERNAME = 'Javier';
+const ADMIN_PASSWORD = 'athallah310706';
 
 export async function signInAdmin(username: string, password: string) {
-  const supabase = createClient();
-
-  // Query admin_users table
-  const { data: adminUser, error } = await supabase
-    .from('admin_users')
-    .select('*')
-    .eq('username', username)
-    .single();
-
-  if (error || !adminUser) {
+  // Simple hardcoded authentication
+  if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
     throw new Error('Username atau password salah');
   }
 
-  // Simple password comparison (in production, use bcrypt.compare)
-  if (adminUser.password_hash !== password) {
-    throw new Error('Username atau password salah');
-  }
-
-  // Update last login
-  await supabase
-    .from('admin_users')
-    .update({ last_login: new Date().toISOString() })
-    .eq('id', adminUser.id);
-
-  // Store session in localStorage (simple approach)
-  localStorage.setItem('admin_session', JSON.stringify({
-    id: adminUser.id,
-    username: adminUser.username,
+  // Store session in localStorage
+  const session = {
+    username: ADMIN_USERNAME,
     authenticated: true,
     loginTime: new Date().toISOString()
-  }));
+  };
 
-  return adminUser;
+  localStorage.setItem('admin_session', JSON.stringify(session));
+
+  return session;
 }
 
 export async function signOutAdmin() {

@@ -1,6 +1,10 @@
 import { supabase } from '../supabase/client';
 import { Product, ProductVariation, ProductFilters } from '../types';
+import { adaptProductToLegacy } from '../helpers/product-adapter';
 
+/**
+ * Get products with filters - mendukung schema lama dan baru
+ */
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
   let query = supabase
     .from('products')
@@ -15,7 +19,9 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
     query = query.eq('published', true);
   }
 
+  // Support both old (kategori array) and new (categories relation) schema
   if (filters?.kategori && filters.kategori.length > 0) {
+    // Check if using old schema with kategori array
     query = query.overlaps('kategori', filters.kategori);
   }
 
@@ -23,8 +29,9 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
     query = query.overlaps('tag', filters.tag);
   }
 
+  // Support both judul (old) and title (new)
   if (filters?.search) {
-    query = query.ilike('judul', `%${filters.search}%`);
+    query = query.or(`judul.ilike.%${filters.search}%,title.ilike.%${filters.search}%`);
   }
 
   if (filters?.sortBy === 'harga_terendah') {
@@ -38,9 +45,14 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
   const { data, error } = await query;
 
   if (error) throw error;
-  return (data || []) as Product[];
+  
+  // Adapt products untuk backward compatibility
+  return (data || []).map(adaptProductToLegacy);
 }
 
+/**
+ * Get product by slug - mendukung schema lama dan baru
+ */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const { data, error } = await supabase
     .from('products')
@@ -53,14 +65,15 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     .maybeSingle();
 
   if (error) throw error;
+  if (!data) return null;
 
-  if (data && data.variations) {
-    data.variations = (data.variations as ProductVariation[]).sort((a, b) => a.sort_order - b.sort_order);
-  }
-
-  return data as Product | null;
+  // Adapt product untuk backward compatibility
+  return adaptProductToLegacy(data);
 }
 
+/**
+ * Get product by ID - mendukung schema lama dan baru
+ */
 export async function getProductById(id: string): Promise<Product | null> {
   const { data, error } = await supabase
     .from('products')
@@ -72,14 +85,15 @@ export async function getProductById(id: string): Promise<Product | null> {
     .maybeSingle();
 
   if (error) throw error;
+  if (!data) return null;
 
-  if (data && data.variations) {
-    data.variations = (data.variations as ProductVariation[]).sort((a, b) => a.sort_order - b.sort_order);
-  }
-
-  return data as Product | null;
+  // Adapt product untuk backward compatibility
+  return adaptProductToLegacy(data);
 }
 
+/**
+ * Create product - support old and new field names
+ */
 export async function createProduct(product: Partial<Product>): Promise<Product> {
   const { variations, ...productData } = product;
 
@@ -94,10 +108,16 @@ export async function createProduct(product: Partial<Product>): Promise<Product>
   if (variations && variations.length > 0) {
     const variationsToInsert = variations.map((v, index) => ({
       product_id: newProduct.id,
-      nama_variasi: v.nama_variasi,
+      // Support both old (nama_variasi) and new (name) field names
+      nama_variasi: (v as any).nama_variasi || v.name,
+      name: v.name || (v as any).nama_variasi,
+      // Support both old (price) and new (price_override)
       price: v.price,
+      price_override: v.price_override,
       sku: v.sku,
-      stok: v.stok,
+      // Support both old (stok) and new (stock)
+      stok: (v as any).stok !== undefined ? (v as any).stok : v.stock,
+      stock: v.stock !== undefined ? v.stock : (v as any).stok,
       is_default: v.is_default,
       sort_order: v.sort_order ?? index,
     }));
@@ -112,6 +132,9 @@ export async function createProduct(product: Partial<Product>): Promise<Product>
   return await getProductById(newProduct.id) as Product;
 }
 
+/**
+ * Update product - support old and new field names
+ */
 export async function updateProduct(id: string, product: Partial<Product>): Promise<Product> {
   const { variations, ...productData } = product;
 
@@ -133,10 +156,16 @@ export async function updateProduct(id: string, product: Partial<Product>): Prom
     if (variations.length > 0) {
       const variationsToInsert = variations.map((v, index) => ({
         product_id: id,
-        nama_variasi: v.nama_variasi,
+        // Support both old (nama_variasi) and new (name) field names
+        nama_variasi: (v as any).nama_variasi || v.name,
+        name: v.name || (v as any).nama_variasi,
+        // Support both old (price) and new (price_override)
         price: v.price,
+        price_override: v.price_override,
         sku: v.sku,
-        stok: v.stok,
+        // Support both old (stok) and new (stock)
+        stok: (v as any).stok !== undefined ? (v as any).stok : v.stock,
+        stock: v.stock !== undefined ? v.stock : (v as any).stok,
         is_default: v.is_default,
         sort_order: v.sort_order ?? index,
       }));

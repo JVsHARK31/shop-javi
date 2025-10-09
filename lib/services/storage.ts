@@ -68,9 +68,30 @@ export async function deleteProductImage(imageUrl: string): Promise<void> {
   }
 }
 
-export async function uploadMultipleImages(files: File[]): Promise<string[]> {
+export async function uploadMultipleImages(files: File[], currentImagesCount: number = 0): Promise<string[]> {
+  // Validasi maksimal 4 gambar per produk
+  if (currentImagesCount + files.length > 4) {
+    throw new Error('Maksimal 4 gambar per produk');
+  }
+  
   const uploadPromises = files.map(file => uploadProductImage(file));
   return Promise.all(uploadPromises);
+}
+
+/**
+ * Validate maximum 4 images for a product
+ */
+export function validateMaxImages(currentCount: number, newCount: number): { valid: boolean; error?: string } {
+  const totalCount = currentCount + newCount;
+  
+  if (totalCount > 4) {
+    return {
+      valid: false,
+      error: `Maksimal 4 gambar per produk. Saat ini ada ${currentCount} gambar, Anda mencoba menambah ${newCount} lagi.`
+    };
+  }
+  
+  return { valid: true };
 }
 
 export function validateImageFile(file: File): { valid: boolean; error?: string } {

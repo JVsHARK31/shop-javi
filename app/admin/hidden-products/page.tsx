@@ -83,14 +83,14 @@ export default function AdminHiddenProductsPage() {
 
     if (searchQuery) {
       filtered = filtered.filter(p =>
-        p.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.judul ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.slug.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(p =>
-        p.kategori.includes(categoryFilter)
+        (p.kategori ?? []).includes(categoryFilter)
       );
     }
 
@@ -266,10 +266,10 @@ export default function AdminHiddenProductsPage() {
                 paginatedProducts.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      {product.gambar[0] ? (
+                      {product.gambar?.[0] ? (
                         <img
                           src={product.gambar[0]}
-                          alt={product.judul}
+                          alt={product.judul ?? product.slug}
                           width={60}
                           height={60}
                           className="rounded object-cover"
@@ -281,22 +281,22 @@ export default function AdminHiddenProductsPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{product.judul}</div>
+                      <div className="font-medium">{product.judul ?? product.slug}</div>
                       <div className="text-xs text-muted-foreground">{product.slug}</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        {product.deskripsi.slice(0, 60)}...
+                        {(product.deskripsi ?? '').slice(0, 60)}...
                       </div>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <div className="flex flex-wrap gap-1">
-                        {product.kategori.slice(0, 2).map((kat) => (
+                        {(product.kategori ?? []).slice(0, 2).map((kat) => (
                           <Badge key={kat} variant="secondary" className="text-xs">
                             {kat}
                           </Badge>
                         ))}
-                        {product.kategori.length > 2 && (
+                        {(product.kategori ?? []).length > 2 && (
                           <Badge variant="secondary" className="text-xs">
-                            +{product.kategori.length - 2}
+                            +{(product.kategori ?? []).length - 2}
                           </Badge>
                         )}
                       </div>
