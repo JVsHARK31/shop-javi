@@ -14,9 +14,11 @@ export interface ProductVariation {
   id?: string;
   product_id?: string;
   name: string; // Changed from nama_variasi
+  nama_variasi?: string; // Legacy field for backward compatibility
   price_override?: number | null; // Changed from price
   price?: number; // Computed field (base_price or price_override)
   stock: number; // Changed from stok
+  stok?: number; // Legacy field for backward compatibility
   sku?: string;
   is_default: boolean;
   sort_order: number;

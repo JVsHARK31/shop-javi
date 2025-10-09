@@ -108,16 +108,11 @@ export async function createProduct(product: Partial<Product>): Promise<Product>
   if (variations && variations.length > 0) {
     const variationsToInsert = variations.map((v, index) => ({
       product_id: newProduct.id,
-      // Support both old (nama_variasi) and new (name) field names
-      nama_variasi: (v as any).nama_variasi || v.name,
-      name: v.name || (v as any).nama_variasi,
-      // Support both old (price) and new (price_override)
+      nama_variasi: v.name,
       price: v.price,
       price_override: v.price_override,
       sku: v.sku,
-      // Support both old (stok) and new (stock)
-      stok: (v as any).stok !== undefined ? (v as any).stok : v.stock,
-      stock: v.stock !== undefined ? v.stock : (v as any).stok,
+      stok: v.stock,
       is_default: v.is_default,
       sort_order: v.sort_order ?? index,
     }));
@@ -156,16 +151,11 @@ export async function updateProduct(id: string, product: Partial<Product>): Prom
     if (variations.length > 0) {
       const variationsToInsert = variations.map((v, index) => ({
         product_id: id,
-        // Support both old (nama_variasi) and new (name) field names
-        nama_variasi: (v as any).nama_variasi || v.name,
-        name: v.name || (v as any).nama_variasi,
-        // Support both old (price) and new (price_override)
+        nama_variasi: v.name,
         price: v.price,
         price_override: v.price_override,
         sku: v.sku,
-        // Support both old (stok) and new (stock)
-        stok: (v as any).stok !== undefined ? (v as any).stok : v.stock,
-        stock: v.stock !== undefined ? v.stock : (v as any).stok,
+        stok: v.stock,
         is_default: v.is_default,
         sort_order: v.sort_order ?? index,
       }));

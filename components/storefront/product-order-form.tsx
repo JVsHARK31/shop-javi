@@ -32,9 +32,10 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const [copied, setCopied] = useState(false);
 
   const selectedVariation = variations.find(v => v.id === selectedVariationId);
-  const isOutOfStock = !selectedVariation || selectedVariation.stock === 0;
+  const stock = selectedVariation ? (selectedVariation.stok ?? selectedVariation.stock) : 0;
+  const isOutOfStock = !selectedVariation || stock === 0;
   const totalPrice = selectedVariation ? (selectedVariation.price ?? 0) * quantity : 0;
-  const maxQuantity = selectedVariation ? selectedVariation.stock : 0;
+  const maxQuantity = stock;
 
   const handleQuantityChange = (delta: number) => {
     const newQuantity = quantity + delta;
@@ -55,7 +56,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
 
     const orderData: WhatsAppOrderData = {
       namaProduk: product.judul || product.title || '',
-      namaVariasi: selectedVariation.name || '',
+      namaVariasi: selectedVariation.nama_variasi || selectedVariation.name || '',
       qty: quantity,
       totalHarga: totalPrice,
       urlProduk: currentUrl,
@@ -111,10 +112,10 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             <SelectContent>
               {variations.map((variation) => (
                 <SelectItem key={variation.id} value={variation.id || ''} className="text-sm">
-                  <span className="block sm:inline">{variation.name}</span>
+                  <span className="block sm:inline">{variation.nama_variasi || variation.name}</span>
                   <span className="block sm:inline sm:ml-1">- {formatRupiahShort(variation.price ?? 0)}</span>
-                  {variation.stock === 0 && <span className="block sm:inline text-destructive"> (Stok Habis)</span>}
-                  {variation.stock > 0 && variation.stock <= 5 && <span className="block sm:inline text-orange-600"> (Sisa {variation.stock})</span>}
+                  {(variation.stok ?? variation.stock) === 0 && <span className="block sm:inline text-destructive"> (Stok Habis)</span>}
+                  {(variation.stok ?? variation.stock) > 0 && (variation.stok ?? variation.stock) <= 5 && <span className="block sm:inline text-orange-600"> (Sisa {variation.stok ?? variation.stock})</span>}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -133,7 +134,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               <div className="text-right">
                 <p className="text-xs sm:text-sm text-muted-foreground">Stok Tersedia</p>
                 <p className={`text-sm sm:text-base font-semibold ${isOutOfStock ? 'text-destructive' : 'text-green-600'}`}>
-                  {isOutOfStock ? 'Habis' : `${selectedVariation.stock} unit`}
+                  {isOutOfStock ? 'Habis' : `${stock} unit`}
                 </p>
               </div>
             </div>
